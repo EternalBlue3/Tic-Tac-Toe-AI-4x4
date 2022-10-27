@@ -42,7 +42,7 @@ def evaluate(board, turn):
 # AI
 TRANSPOSITION_TABLE = {}
 
-def store(table, board, alpha, beta, best):
+def store(table, board, alpha, beta, best, depth):
     if best[1] <= alpha:
         flag = 'UPPERCASE'
     elif best[1] >= beta:
@@ -50,19 +50,20 @@ def store(table, board, alpha, beta, best):
     else:
         flag = 'EXACT'
 
-    table[str(board)] = [best, flag]
+    table[str(board)] = [best, flag, depth]
 
 def negamax(board, depth, turn, alpha, beta):
     alpha_org = alpha
     # Transposition tabel look up
     if str(board) in TRANSPOSITION_TABLE:
         tt_entry = TRANSPOSITION_TABLE[str(board)]
-        if tt_entry[1] == 'EXACT':
-            return tt_entry[0]
-        elif tt_entry[1] == 'LOWERCASE':
-            alpha = max(alpha, tt_entry[0][1])
-        elif tt_entry[1] == 'UPPERCASE':
-            beta = min(beta, tt_entry[0][1])
+        if tt_entry[2] >= depth:
+            if tt_entry[1] == 'EXACT':
+                return tt_entry[0]
+            elif tt_entry[1] == 'LOWERCASE':
+                alpha = max(alpha, tt_entry[0][1])
+            elif tt_entry[1] == 'UPPERCASE':
+                beta = min(beta, tt_entry[0][1])
 
         if alpha >= beta:
             return tt_entry[0]
@@ -83,7 +84,7 @@ def negamax(board, depth, turn, alpha, beta):
         if alpha >= beta:
             break
     
-    store(TRANSPOSITION_TABLE, board, alpha_org, beta, [best_move,best_score])
+    store(TRANSPOSITION_TABLE, board, alpha_org, beta, [best_move,best_score], depth)
     
     return best_move, best_score  # Return the best move and its corresponding score
        
